@@ -1,12 +1,11 @@
-const { Configuration, OpenAIApi } = require('openai');
+const OpenAI = require('openai');
 const env = require('../config/env');
 const supabase = require('../config/db');
 
 // Initialize OpenAI API client
-const configuration = new Configuration({
+const openai = new OpenAI({
   apiKey: env.OPENAI_API_KEY,
 });
-const openai = new OpenAIApi(configuration);
 
 // IP tracking for rate limiting and blocking
 const ipTracker = new Map(); // ip -> { count, lastViolation, warnings }
@@ -25,11 +24,11 @@ async function checkContent(content, ipAddress = null) {
     }
     
     // Call OpenAI Moderation API
-    const response = await openai.createModeration({
+    const response = await openai.moderations.create({
       input: content,
     });
     
-    const result = response.data.results[0];
+    const result = response.results[0];
     
     // Check if content is flagged
     if (result.flagged) {
