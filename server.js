@@ -1,39 +1,35 @@
-const http = require('http');
-const app = require('./app');
-const { initializeSocket } = require('./config/socket');
+const { app, server } = require('./app');
 const env = require('./config/env');
+const { logger, performanceMonitor, errorTracker, requestLogger } = require('./services/monitoring');
 
-// Create HTTP server
-const server = http.createServer(app);
+// Apply monitoring middleware
+app.use(requestLogger);
+app.use(performanceMonitor);
 
-// Initialize Socket.io with the server
-const io = initializeSocket(server);
+// Error tracking middleware should be last
+app.use(errorTracker);
 
-// Start the server
-const PORT = env.PORT;
-server.listen(PORT, '0.0.0.0', () => {
-  console.log(`Server running on port ${PORT}`);
-  console.log(`Environment: ${env.NODE_ENV}`);
-});
+// Start server
+const port = env.PORT;
+const startServer = () => {
+  server.listen(port, () => {
+    logger.info(`Server is running on port ${port} in ${env.NODE_ENV} mode`);
+  });
+};
 
 // Handle uncaught exceptions
 process.on('uncaughtException', (error) => {
-  console.error('Uncaught Exception:', error);
-  // Graceful shutdown
-  server.close(() => {
-    process.exit(1);
-  });
-  
-  // If server doesn't close in 5 seconds, force shutdown
-  setTimeout(() => {
-    process.exit(1);
-  }, 5000);
+  logger.error('Uncaught Exception:', error);
+  process.exit(1);
 });
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (reason, promise) => {
-  console.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  // Application continues running
+  logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  process.exit(1);
 });
+
+// Start the server
+startServer();
 
 module.exports = server;

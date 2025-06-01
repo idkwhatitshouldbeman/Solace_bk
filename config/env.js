@@ -9,6 +9,7 @@ const env = {
   // Supabase configuration
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_KEY: process.env.SUPABASE_KEY,
+  SUPABASE_POOL_SIZE: parseInt(process.env.SUPABASE_POOL_SIZE) || 10,
   
   // JWT configuration
   JWT_SECRET: process.env.JWT_SECRET || 'your-default-jwt-secret-change-in-production',
@@ -23,6 +24,19 @@ const env = {
   
   // CORS configuration
   CORS_ORIGIN: process.env.CORS_ORIGIN || '*',
+  
+  // SSL/TLS configuration
+  SSL_KEY_PATH: process.env.SSL_KEY_PATH,
+  SSL_CERT_PATH: process.env.SSL_CERT_PATH,
+  
+  // Monitoring configuration
+  ENABLE_REQUEST_LOGGING: process.env.ENABLE_REQUEST_LOGGING === 'true',
+  LOG_LEVEL: process.env.LOG_LEVEL || 'info',
+  SENTRY_DSN: process.env.SENTRY_DSN,
+  
+  // Performance monitoring
+  ENABLE_PERFORMANCE_MONITORING: process.env.ENABLE_PERFORMANCE_MONITORING === 'true',
+  METRICS_PORT: parseInt(process.env.METRICS_PORT) || 9090
 };
 
 // Validate required environment variables
